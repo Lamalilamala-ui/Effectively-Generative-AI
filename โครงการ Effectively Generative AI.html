@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Dashboard - Gen AI for Physical Therapy Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-site: #f6f6fb; 
+            --header-gradient: linear-gradient(135deg, #bccef2 0%, #d9d6f0 50%, #88c6f5 100%);
+            --primary-blue: #3e76b8;
+            --deep-blue: #204e82;
+            --soft-purple: #8b5cf6;
+            --dark-slate: #1e293b;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(188, 206, 242, 0.4);
+            --radius-main: 24px;
+            --radius-sub: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-site);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        .full-width-header {
+            background: var(--header-gradient);
+            padding: 60px 20px 50px 20px;
+            box-shadow: 0 4px 30px rgba(188, 206, 242, 0.4);
+            margin-bottom: 40px;
+            width: 100%;
+            position: relative;
+        }
+
+        .header-content-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .hero-text .th-title {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 400;
+            opacity: 0.95;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-text .en-title {
+            color: var(--primary-blue);
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 
+                0 0 10px rgba(62, 118, 184, 0.5),
+                0 0 20px rgba(62, 118, 184, 0.3),
+                0 0 35px rgba(255, 255, 255, 0.8);
+            background: linear-gradient(to bottom, #7fb2f0 0%, var(--primary-blue) 50%, var(--deep-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .header-credit-tag {
+            position: absolute;
+            right: 20px;
+            bottom: 15px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 4px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* กล่องครอบไอคอนหุ่นยนต์พร้อมเอฟเฟกต์ Glow และอนิเมชันลอยตัว */
+        .hero-ai-illustration {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(62, 118, 184, 0.4), 0 15px 35px rgba(136, 198, 245, 0.4);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .hero-ai-illustration i {
+            font-size: 55px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--soft-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(62, 118, 184, 0.3));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-main);
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(188, 206, 242, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 20px;
+        }
+        .card-header i { font-size: 26px; color: var(--primary-blue); }
+        .card-header h2 { font-size: 22px; font-weight: 600; color: var(--dark-slate); }
+
+        .wooclap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        .wooclap-item {
+            background: #ffffff;
+            border: 1px solid rgba(136, 198, 245, 0.3);
+            padding: 14px 20px;
+            border-radius: var(--radius-sub);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.02);
+        }
+        .wooclap-item:hover {
+            border-color: var(--primary-blue);
+            background: #f8fafc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(62, 118, 184, 0.15);
+        }
+        .wooclap-item i { color: #818cf8; font-size: 14px; }
+
+        .grid-half { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .grid-drilldown { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; }
+        @media (max-width: 1024px) {
+            .grid-half, .grid-drilldown { grid-template-columns: 1fr; }
+        }
+
+        .metric-wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .metric-stat-box {
+            background: #ffffff;
+            border-radius: var(--radius-sub);
+            padding: 22px 15px;
+            text-align: center;
+            border: 1px solid rgba(217, 214, 240, 1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+        }
+        .metric-stat-box .val { font-size: 32px; font-weight: 700; color: var(--primary-blue); }
+        .metric-stat-box .lbl { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+        .drilldown-panel {
+            background: #ffffff;
+            border-radius: var(--radius-sub);
+            padding: 30px;
+            border: 1px solid rgba(136, 198, 245, 0.4);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .drilldown-panel h3 {
+            font-size: 17px;
+            margin-bottom: 20px;
+            color: var(--deep-blue);
+            border-left: 5px solid var(--primary-blue);
+            padding-left: 15px;
+        }
+        .drilldown-row {
+            background: #f8fafc;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            border: 1px solid #edf2f7;
+            transition: all 0.2s ease;
+        }
+        .drilldown-row:hover {
+            background: #ffffff;
+            border-color: var(--primary-blue);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+            transform: translateX(4px);
+        }
+        .score-pill {
+            font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--primary-blue), #818cf8);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .suggestion-stack { display: flex; flex-direction: column; gap: 15px; }
+        .suggestion-card {
+            background: #ffffff;
+            border-left: 5px solid #818cf8;
+            padding: 18px 25px;
+            border-radius: 0 var(--radius-sub) var(--radius-sub) 0;
+            font-size: 15px;
+            border-top: 1px solid #edf2f7;
+            border-right: 1px solid #edf2f7;
+            border-bottom: 1px solid #edf2f7;
+            transition: all 0.3s ease;
+        }
+        .suggestion-card:hover {
+            background: #f8fafc;
+            border-left-color: var(--primary-blue);
+            transform: scale(1.01);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(136, 198, 245, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-blue); }
+
+        footer { text-align: center; padding: 50px 20px; font-size: 14px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="full-width-header">
+    <div class="header-content-inner">
+        <div class="hero-text">
+            <h1>
+                <span class="th-title">โครงการพัฒนาอาจารย์ด้านการศึกษา</span>
+                <span class="en-title">Effectively Generative AI for Physical Therapy Education</span>
+            </h1>
+        </div>
+        <div class="hero-ai-illustration">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="header-credit-tag">
+            จัดโดย คณะกรรมการพัฒนานวัตกรรมการเรียนการสอน คณะกายภาพบำบัด
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-container">
+
+    <div class="content-card">
+        <div class="card-header">
+            <i class="fa-solid fa-cloud-bolt"></i>
+            <h2>ผลกิจกรรมก่อนอบรม (Wooclap) : อยากให้ AI ช่วยงานสอนเรื่องใดมากที่สุด?</h2>
+        </div>
+        <div class="wooclap-grid" id="wooclap-box"></div>
+    </div>
+
+    <div class="grid-half">
+        <div class="content-card">
+            <div class="card-header">
+                <i class="fa-solid fa-id-card-clip"></i>
+                <h2>ตอนที่ 1: ข้อมูลทั่วไป</h2>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="demoChart"></canvas>
+            </div>
+        </div>
+
+        <div class="content-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="card-header">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <h2>ผลสัมฤทธิ์ภาพรวมโครงการ</h2>
+                </div>
+                <div class="metric-wrapper">
+                    <div class="metric-stat-box"><div class="val">27 คน</div><div class="lbl">ผู้ส่งแบบประเมิน</div></div>
+                    <div class="metric-stat-box"><div class="val">4.84</div><div class="lbl">คะแนนเฉลี่ยรวม</div></div>
+                    <div class="metric-stat-box"><div class="val">85.2%</div><div class="lbl">สูงกว่าความคาดหวัง</div></div>
+                </div>
+            </div>
+            <div style="height: 140px;">
+                <canvas id="expectChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <i class="fa-solid fa-star-half-stroke"></i>
+            <h2>ตอนที่ 2: ผลแบบประเมิน</h2>
+        </div>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 25px;">
+            <i class="fa-solid fa-circle-info" style="color: var(--primary-blue);"></i> คลิกที่แท่งกราฟเพื่อเจาะลึกดูคะแนนรายข้อในแต่ละด้าน
+        </p>
+        
+        <div class="grid-drilldown">
+            <div style="height: 450px;">
+                <canvas id="mainBarChart"></canvas>
+            </div>
+            <div class="drilldown-panel">
+                <h3 id="panel-title">1. ด้านวิทยากร (x̄ = 4.93)</h3>
+                <div id="panel-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <i class="fa-solid fa-comment-dots"></i>
+            <h2>ตอนที่ 3: ข้อเสนอแนะ</h2>
+        </div>
+        <div class="suggestion-stack" id="suggestion-box"></div>
+    </div>
+
+    <footer>
+        <p>© 2026 Faculty of Physical Therapy, Mahidol University | Strategic Educational AI Development Dashboard</p>
+    </footer>
+
+</div>
+
+<script>
+    const wooclapData = [
+        "ช่วยเตรียมสื่อการสอน", "สร้าง infographic", "เอาใจเขามาใส่ใจเรา", "ช่วยทำภาพประกอบ", 
+        "สร้างภาพประกอบ", "สร้างรูปแบบการเรียนในชั้น", "ช่วยทำ PowerPoint ประกอบการสอน", "หาข้อมูลหลักฐานเชิงประจักษ์", 
+        "ทำ mind map สวย ๆ", "สร้างรูปในแบบที่อยากได้", "ช่วยสร้างภาพประกอบ", "สร้างวิดีโอจำลองสถานการณ์", 
+        "CLOs", "สืบค้นข้อมูล", "ช่วยทำรูป ทำสื่อ", "ทำคลิปวิดีโอ", "ช่วยชีวิต", "ทำสไลด์", 
+        "idea", "ตาราง", "คลิปอธิบาย", "ดูเป็นไอเดีย", "PowerPoint slide", "rubric", 
+        "เช็กชื่อ", "ตั้งค่าถาม", "สร้างรูป", "ทุกสิ่งเลือกไม่ได้", "flowchart", "สร้างข้อสอบและเฉลย", 
+        "ช่วยทำคลิปวิดีโอ", "ทำรูป", "ค้นหาข้อมูล สร้างภาพ", "วิเคราะห์คำตอบนศที่ผู้เรียนอาจอยากทราบ", 
+        "ตัดต่อคลิปให้เลย", "ทำเอกสารการสอน", "ช่วยออกข้อสอบ", "ปรับรูปแบบ slide ประกอบการสอน", 
+        "วางแผนโดรงเรื่องในการสอน", "สร้างรูปประกอบ", "สร้าง presentation", "สร้างภาพ เตรียม powerpoint", 
+        "ทำรูป ออกแบบ template"
+    ];
+
+    // ปรับแก้ข้อ 6 เรียบร้อยแล้ว
+    const suggestions = [
+        "1. ต้องการให้จัดอบรมด้าน Generative AI อย่างต่อเนื่อง และเชิญวิทยากรท่านเดิมมาให้ความรู้อีก",
+        "2. บางช่วงของการบรรยายดำเนินเนื้อหาค่อนข้างรวดเร็ว แต่เปิดโอกาสให้ซักถามและทบทวนได้",
+        "3. ควรเพิ่มจำนวนผู้ช่วยวิทยากรในช่วงกิจกรรม Workshop",
+        "4. ควรปรับปรุงอุปกรณ์โสตทัศนูปกรณ์ โดยขยายภาพบนจอให้มีขนาดใหญ่และมองเห็นได้ชัดเจน",
+        "5. เสนอให้แบ่งการอบรมเป็น 2 วัน เพื่อให้มีเวลาทำความเข้าใจและฝึกปฏิบัติมากขึ้น",
+        "6. เคยเห็นอาจารย์ท่านนึงใช้สื่อ AI ในการเรียนการสอนหลายครั้ง และน่าสนใจ อยากให้อาจารย์มาสอน เนื่องจากจะได้เจาะจงกับ PT โดยตรงเลย",
+        "7. วิทยากรสอนดี มีความเชี่ยวชาญ ใส่ใจผู้เรียน แต่ควรใช้ถ้อยคำที่เป็นทางการมากยิ่งขึ้นในบางช่วง",
+        "8. ต้องการให้มีการจัดอบรมเรื่อง NotebookLM แยกโดยละเอียดต่างหาก"
+    ];
+
+    const evaluationDetails = {
+        "1. ด้านวิทยากร (x̄ = 4.93)": {
+            avg: 4.93,
+            items: [
+                { q: "ความรู้ ความเชี่ยวชาญ และประสบการณ์ของวิทยากรและ / หรือผู้ช่วยวิทยากรในหัวข้อบรรยาย / ฝึกปฏิบัติ", s: 4.96 },
+                { q: "การตอบข้อซักถามในการบรรยาย / การฝึก", s: 4.96 },
+                { q: "เนื้อหาที่บรรยายครอบคลุม และสอดคล้องกับวัตถุประสงค์", s: 4.93 },
+                { q: "ความพึงพอใจของวิทยากรในภาพรวม", s: 4.93 },
+                { q: "ความสามารถในการถ่ายทอดความรู้", s: 4.89 }
+            ]
+        },
+        "2. ความพึงพอใจภาพรวมต่อโครงการ (x̄ = 4.85)": {
+            avg: 4.85,
+            items: [{ q: "ความพึงพอใจของท่านต่อภาพรวมของโครงการ", s: 4.85 }]
+        },
+        "3. ด้านสถานที่ / อุปกรณ์ / ระยะเวลา / อาหาร (x̄ = 4.81)": {
+            avg: 4.81,
+            items: [
+                { q: "อาหารและอาหารว่าง", s: 4.93 },
+                { q: "ความเหมาะสมของสถานที่ในการอบรม", s: 4.89 },
+                { q: "เอกสาร / อุปกรณ์ที่ใช้ประกอบการอบรม", s: 4.85 },
+                { q: "ระยะเวลาในการอบรม", s: 4.70 },
+                { q: "ความพร้อมของอุปกรณ์โสตทัศนูปกรณ์", s: 4.67 }
+            ]
+        },
+        "4. ด้านความรู้ ความเข้าใจ (x̄ = 4.80)": {
+            avg: 4.80,
+            items: [
+                { q: "ประโยชน์ที่ได้รับตรงกับความต้องการของผู้เข้ารับการอบรม", s: 4.89 },
+                { q: "สามารถเลือกใช้ Generative AI ได้อย่างเหมาะสม", s: 4.81 },
+                { q: "ได้รับความรู้และเข้าใจเกี่ยวกับการนำ Generative AI มาประยุกต์ในการจัดการเรียนการสอน", s: 4.78 }
+            ]
+        },
+        "5. ด้านกระบวนการจัดการอบรม (x̄ = 4.80)": {
+            avg: 4.80,
+            items: [
+                { q: "การจัดลำดับขั้นตอนของกิจกรรม", s: 4.81 },
+                { q: "การประชาสัมพันธ์โครงการ ฯ", s: 4.78 }
+            ]
+        }
+    };
+
+    window.onload = () => {
+        const wBox = document.getElementById('wooclap-box');
+        wooclapData.forEach(text => {
+            const el = document.createElement('div');
+            el.className = 'wooclap-item';
+            el.innerHTML = `<i class="fa-solid fa-check-circle"></i> <span>${text}</span>`;
+            wBox.appendChild(el);
+        });
+
+        const sBox = document.getElementById('suggestion-box');
+        suggestions.forEach(text => {
+            const el = document.createElement('div');
+            el.className = 'suggestion-card';
+            el.innerText = text;
+            sBox.appendChild(el);
+        });
+
+        initCharts();
+        updateDrilldown("1. ด้านวิทยากร (x̄ = 4.93)");
+    };
+
+    function initCharts() {
+        new Chart(document.getElementById('demoChart'), {
+            type: 'pie',
+            data: {
+                labels: ['สายวิชาการ (92.59%)', 'PhD Student (7.41%)'],
+                datasets: [{
+                    data: [25, 2],
+                    backgroundColor: ['#3e76b8', '#8b5cf6'],
+                    borderWidth: 3, borderColor: '#ffffff'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('expectChart'), {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: ['มากกว่าความคาดหวัง', 'ตรงความคาดหวัง', 'น้อยกว่าความคาดหวัง'],
+                datasets: [{
+                    data: [85.2, 11.1, 3.7],
+                    backgroundColor: ['#3e76b8', '#88c6f5', '#cbd5e1']
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { grid: { display: false } } }
+            }
+        });
+
+        const evalLabels = Object.keys(evaluationDetails);
+        const evalValues = evalLabels.map(key => evaluationDetails[key].avg);
+
+        new Chart(document.getElementById('mainBarChart'), {
+            type: 'bar',
+            data: {
+                labels: evalLabels,
+                datasets: [{
+                    data: evalValues,
+                    backgroundColor: 'rgba(62, 118, 184, 0.1)',
+                    borderColor: '#3e76b8',
+                    borderWidth: 2,
+                    borderRadius: 10,
+                    hoverBackgroundColor: '#3e76b8'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: { y: { min: 4.5, max: 5.0 } },
+                onClick: (e, activeElements) => {
+                    if (activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        updateDrilldown(evalLabels[index]);
+                    }
+                }
+            }
+        });
+    }
+
+    function updateDrilldown(categoryName) {
+        const data = evaluationDetails[categoryName];
+        document.getElementById('panel-title').innerText = categoryName;
+        
+        const container = document.getElementById('panel-content');
+        container.innerHTML = '';
+        
+        data.items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'drilldown-row';
+            row.innerHTML = `<span>${item.q}</span><span class="score-pill">${item.s.toFixed(2)}</span>`;
+            container.appendChild(row);
+        });
+    }
+</script>
+
+</body>
+</html>
